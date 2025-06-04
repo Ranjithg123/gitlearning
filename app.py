@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -13,7 +13,7 @@ weather_data = {
 # Home
 @app.route('/')
 def home():
-    return "Welcome to the Weather API!"
+    return render_template("index.html")
 
 # Get weather for all cities
 @app.route('/weather', methods=['GET'])
