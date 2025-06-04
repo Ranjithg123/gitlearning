@@ -4,11 +4,11 @@ app = Flask(__name__)
 
 # Dummy weather data
 weather_data = {
-    "Chennai": {"temperature": 34, "condition": "Sunny"},
-    "Mumbai": {"temperature": 30, "condition": "Humid"},
-    "Delhi": {"temperature": 38, "condition": "Hot"},
-    "Bangalore": {"temperature": 28, "condition": "Cloudy"}
+    "Chennai": {"temperature": 32, "condition": "Sunny", "lat": 13.0827, "lon": 80.2707},
+    "Coimbatore": {"temperature": 30, "condition": "Cloudy", "lat": 11.0168, "lon": 76.9558},
+    "Bangalore": {"temperature": 28, "condition": "Rainy", "lat": 12.9716, "lon": 77.5946},
 }
+
 
 # Home
 @app.route('/')
@@ -28,6 +28,15 @@ def get_weather_by_city(city):
         return jsonify({city: weather_data[city]})
     else:
         return jsonify({"error": "City not found"}), 404
+    
+@app.route('/weather/<city>')
+def city_weather(city):
+    city_title = city.title()
+    if city_title in weather_data:
+        return jsonify({city_title: weather_data[city_title]})
+    else:
+        return jsonify({"error": "City not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)

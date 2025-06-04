@@ -16,7 +16,15 @@
             margin-top: 20px;
             font-size: 18px;
         }
+        #map {
+            display: none;
+            height: 400px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
     <h1>Weather Info</h1>
@@ -24,6 +32,8 @@
     <button onclick="getWeather()">Get Weather</button>
 
     <div id="result"></div>
+    <div id="map" style="height: 400px; width: 100%; margin: 20px auto;"></div>
+
 
     <script>
         function getWeather() {
@@ -45,6 +55,62 @@
                     document.getElementById('result').innerText = "Error fetching data.";
                 });
         }
+
+        let map = null;
+let marker = null;
+
+function initMap(lat, lon) {
+    if (!map) {
+        map = L.map('map').setView([lat, lon], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+    } else {
+        map.setView([lat, lon], 12);
+    }
+
+    if (marker) {
+        marker.setLatLng([lat, lon]);
+    } else {
+        marker = L.marker([lat, lon]).addTo(map);
+    }
+}
+
+function getWeather() {
+    const city = document.getElementById('cityInput').value.trim();
+    if (!city) {
+        alert('Please enter a city name');
+        return;
+    }
+    fetch(`/weather/${city}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('result').innerText = data.error;
+                if (map) {
+                    map.remove();
+                    map = null;
+                }
+                document.getElementById('map').style.display = 'none';
+            } else {
+                const cityTitle = city.charAt(0).toUpperCase() + city.slice(1);
+                const weather = data[cityTitle];
+                document.getElementById('result').innerHTML =
+                    `<strong>${cityTitle}</strong><br>
+                    Temperature: ${weather.temperature}°C<br>
+                    Condition: ${weather.condition}`;
+
+                document.getElementById('map').style.display = 'block';
+                initMap(weather.lat, weather.lon);
+            }
+        })
+        .catch(err => {
+            document.getElementById('result').innerText = "Error fetching data.";
+        });
+}
+
     </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
